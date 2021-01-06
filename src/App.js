@@ -20,6 +20,14 @@ const theme = createMuiTheme({
     },
     secondary: {
       main: "#ffa500"
+    },
+    brown: {
+      light: "#F0E9E1",
+      main: "#E6DFD6",
+      dark: "#6F6255"
+    },
+    grey: {
+      light: "#F5F6F8"
     }
   }
 });
@@ -42,32 +50,30 @@ function App() {
       <div className={classes.root}>
         <CssBaseline />
         <Navigation />
-        <Container maxWidth="lg" className={classes.container}>
-          <Router>
-            <Route exact path='/'>
-              <Landing/>
-            </Route>
-            <Route exact path='/search/species/'>
-              <Search type="species"/>
-            </Route>
-            <Route exact path='/search/occurrence/'>
-              <Search type="occurrence"/>
-            </Route>
-            <Route exact path='/search/publisher/'>
-              <Search type="publisher"/>
-            </Route>
+        <Router>
+          <Route exact path='/'>
+            <Landing/>
+          </Route>
+          <Route exact path='/search/species/'>
+            <Search type="species"/>
+          </Route>
+          <Route exact path='/search/occurrence/'>
+            <Search type="occurrence"/>
+          </Route>
+          <Route exact path='/search/publisher/'>
+            <Search type="publisher"/>
+          </Route>
 
-            <Route exact path='/species/:id'>
-              <Species/>
-            </Route>
-            <Route exact path='/occurrence/:id'>
-              <Occurrence/>
-            </Route>
-            <Route exact path='/publisher/:id'>
-              <Publisher/>
-            </Route>
-          </Router>
-        </Container>
+          <Route exact path='/species/:id'>
+            <Species/>
+          </Route>
+          <Route exact path='/occurrence/:id'>
+            <Occurrence/>
+          </Route>
+          <Route exact path='/publisher/:id'>
+            <Publisher/>
+          </Route>
+        </Router>
       </div>
     </ThemeProvider>
   );
