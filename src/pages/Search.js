@@ -1,10 +1,12 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 
 import {useGetSpecies} from '../hooks/useGetSpecies'
 
 import PropTypes from 'prop-types'
 
-import { Grid,Button,Paper } from '@material-ui/core';
+import { Grid,Button,Paper,TextField,FormGroup,FormControlLabel,Checkbox,Divider  } from '@material-ui/core';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import {makeStyles} from '@material-ui/core/styles';
 
 import Dashboard from '../components/Dashboard'
@@ -28,30 +30,78 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.brown.dark,
         color: '#fff'
     },
-    pageTitle: {
-        marginTop: '0px'
-    },
     card: {
         marginBottom: '10px',
         padding: '10px'
+    },
+    filterContainer: {
+        backgroundColor: '#fff',
+        border: '1px solid #F0E9E1',
+        borderRadius: '5px',
+        margin: '10px 0px',
+        padding: '10px'
+    },
+    textfield: {
+        width: '100%',
+        backgroundColor: '#fff',
+        border: '1px solid #F0E9E1',
+        borderRadius: '5px',
+
     }
 }));
 
 // Left side of the dashboard
-const Sidebar = () => {
+const Sidebar = ({facets,onChange,selectedFilters}) => {
+    const classes = useStyles();
+
     return (
-        <h1>Sidebar</h1>
+        <Grid container direction="column" justify="flex-start" alignItems="stretch">
+            <Grid item>
+               
+                <h3>Filters</h3>
+              
+                <TextField className={classes.textfield} id="outlined-basic" label="Name, description, class" variant="outlined" />
+            </Grid>
+            {facets.map((facet,facetIndex) => (
+                <Grid key={facetIndex} item className={classes.filterContainer}>
+                    <Grid container direction="row" justify="space-between" alignItems="center">
+                        <Grid item><h4>{facet.field.split('_').join(' ')}</h4></Grid>
+                        <Grid item><ArrowDropDownIcon/></Grid>
+                    </Grid>
+                    <Divider/>
+                    <FormGroup>
+                    {facet.counts.map((fieldOptions, fieldIndex) => (
+                       
+                        <FormControlLabel
+                            key={fieldIndex}
+                            control={<Checkbox checked={true}/>}
+                            label={fieldOptions.name.split('_').join(' ').toLowerCase()}
+                            value={facet.field}
+                        />
+                         /* <FormControlLabel
+                            key={fieldIndex}
+                            control={<Checkbox checked={(selectedFilters[facetIndex] === undefined)
+                                ? Object.values(selectedFilters[facetIndex])[1]?.includes(fieldOptions.name)
+                                : false} onChange={onChange} name={fieldOptions.name} />}
+                            label={fieldOptions.name.split('_').join(' ').toLowerCase()}
+                            value={facet.field}
+                        /> */
+                   
+                    ))}
+                    </FormGroup>
+                </Grid>
+            ))}
+        </Grid>
     )
 }
 
 // Right side of the dashboard
 const MainContent = ({count,results}) => {
-    console.log(results);
     const classes = useStyles();
     return (
-        <Grid direction="column" justify="flex-start" alignItems="stretch">
+        <Grid container direction="column" justify="flex-start" alignItems="stretch">
             <Grid item className={classes.contentHeader}>
-                <h1 className={classes.pageTitle}>Main Content</h1>
+                <h1 className={classes.pageTitle}>Species</h1>
                 <p>Searching for species with the following filters:</p>
                 <Grid container direction="row" justify="flex-start" alignItems="flex-start" spacing={2}>
                     <Grid item><Button variant="contained" className={classes.filterButton} disableElevation>Filter</Button></Grid>
@@ -68,8 +118,8 @@ const MainContent = ({count,results}) => {
                 </Grid>
             </Grid>
             <Grid item className={classes.results}>
-                {results.map((result) => (
-                    <Paper elevation={0} className={classes.card}>
+                {results.map((result,i) => (
+                    <Paper key={i} elevation={0} className={classes.card}>
                         <Grid container direction="row" justify="space-between" alignItems="flex-start">
                             <Grid item>
                                 <Grid container direction="column" justify="flex-start" alignItems="flex-start">
@@ -105,22 +155,82 @@ MainContent.propTypes = {
 
 const Search = ({type}) => {
     const classes = useStyles();
+    let endpointPath = '/search/species/';
 
+    // Custom hook to fetch species
     const { data, loading, error } = useGetSpecies(
-        'species/search',
+        'species/search?advanced=true&facet=rank&facet=dataset_key&facet=constituent_key&facet=highertaxon_key&facet=name_type&facet=status&facet=issue&facet=origin&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100',
         []
     );
 
-    return ((loading) 
-                ? <h1>Loading</h1>
-                : <Dashboard 
-                    sidebar={
-                        <Sidebar/>
-                    } 
-                    mainContent={
-                        <MainContent count={data.count} results={data.results}/>
+    const [filters, setFilters] = useState([{"ORIGIN": ["PROPARTE"]}]);
+        console.log(filters)
+        
+    useEffect(() => {
+        if(!loading) {
+            // Initialize local state for managing filter changes (User selecting a filter option)
+            setFilters(data.facets.map((facet)=> {
+                return {[facet.field]: []}
+            }))
+        }
+    }, [])
+
+    let filterSelect = (e) => {
+        let group = e.target.value;
+        let selectedValue = e.target.name;
+
+        setFilters([...filters].map(filter => {
+            if(Object.keys(filter)[0] == group){
+                if(Object.values(filter)[0].length == 0){
+                    console.log('hi')
+                    return {
+                        ...filter,
+                        [group]: [selectedValue]
                     }
-                />
+                }
+                else if(Object.values(filter)[0].includes(selectedValue)){
+                    return {
+                        ...filter,
+                        [group]: Object.values(filter)[0].filter((value) => selectedValue !== value)
+                    }
+                } 
+                else {
+                    return {
+                        ...filter,
+                        [group]: [...Object.values(filter)[0], selectedValue]
+                    }
+                }
+            }
+            return filter;
+        }))
+
+        // Reconstruct endpoint to update results shown
+        // Update browser url to reflect filters selected
+    }
+
+    let composeEndpoint = (parameters) => {
+
+        console.log(`${endpointPath}${parameters.join('/')}`)
+    }
+
+    composeEndpoint.propTypes = {
+        path: PropTypes.string,
+        parameters: PropTypes.array
+    }
+    
+
+    // console.log(initialFilters);
+    // console.log(data);
+    return ((loading) 
+        ? <h1>Loading</h1>
+        : <Dashboard 
+            sidebar={
+                <Sidebar facets={data.facets} onChange={filterSelect} selectedFilters={filters}/>
+            } 
+            mainContent={
+                <MainContent count={data.count} results={data.results}/>
+            }
+        />
     )
 }
 

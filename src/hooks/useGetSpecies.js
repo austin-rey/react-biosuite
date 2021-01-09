@@ -9,7 +9,6 @@ export const useGetSpecies = (url,initialValue) => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-
       (async () => {
           try {
             if (cache.current[url]) {
