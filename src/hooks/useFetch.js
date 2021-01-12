@@ -2,13 +2,14 @@ import { useState, useEffect,useRef } from 'react';
 
 import gbif from '../api/gbif'
 
-export const useGetSpecies = (url,initialValue) => {
+export const useFetch = (url,initialValue) => {
   const cache = useRef({})
   const [data, setData] = useState(initialValue);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
+    console.log(cache);
       (async () => {
           try {
             if (cache.current[url]) {

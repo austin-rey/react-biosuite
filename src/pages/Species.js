@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 
 import {useParams} from "react-router-dom";
 
-import {useGetSpecies} from '../hooks/useGetSpecies'
+import {useFetch} from '../hooks/useFetch'
 
 import {makeStyles} from '@material-ui/core/styles';
 
@@ -12,12 +12,6 @@ import { Grid,Button,Paper,Divider,Card,CardMedia,CardContent } from '@material-
 import Pagination from '@material-ui/lab/Pagination';
 import Dashboard from '../components/Dashboard'
 
-import OccurrenceImages from '../containers/OccurrenceImages';
-import OccurrenceDatasets from '../containers/OccurrenceDatasets';
-import SpeciesVernacularNames from '../containers/SpeciesVernacularNames'
-import SpeciesSynonyms from '../containers/SpeciesSynonyms'
-import SpeciesChildren from '../containers/SpeciesChildren'
-import SpeciesParent from '../containers/SpeciesParent'
 // Component css styles
 const useStyles = makeStyles((theme) => ({
     contentHeader: {
@@ -102,8 +96,8 @@ const MainContent = ({metadata,images,datasets,vernacularNames,synonyms,children
                             <Grid container direction="column">
                                 <Grid item>
                                     <Grid container direction="row" spacing={2} className={classes.cardContainer}>
-                                        {images.results?.map((image) => (
-                                            <Grid item>
+                                        {images.results?.map((image,i) => (
+                                            <Grid item key={i}>
                                                 <Card className={classes.card}>
                                                     <CardMedia
                                                         className={classes.media}
@@ -173,14 +167,14 @@ const MainContent = ({metadata,images,datasets,vernacularNames,synonyms,children
                                     <Grid container direction="row" alignItems="flex-start" justify="space-around" spacing={2}>
                                         <Grid item className={classes.textCenter}>
                                             <h5>Name</h5>
-                                            {vernacularNames?.map((item) => (
-                                                <p>{item.vernacularName}</p>
+                                            {vernacularNames?.map((item,i) => (
+                                                <p key={i}>{item.vernacularName}</p>
                                             ))}
                                         </Grid>
                                         <Grid item className={classes.textCenter}>
                                             <h5>Source</h5>
-                                            {vernacularNames?.map((item) => (
-                                                <p>{item.source}</p>
+                                            {vernacularNames?.map((item,i) => (
+                                                <p key={i}>{item.source}</p>
                                             ))}
                                         </Grid>
                                     </Grid>
@@ -192,14 +186,14 @@ const MainContent = ({metadata,images,datasets,vernacularNames,synonyms,children
                                     <Grid container direction="row" alignItems="flex-start" justify="space-around" spacing={2}>
                                     <Grid item className={classes.textCenter}>
                                             <h5>Name</h5>
-                                            {synonyms?.map((item) => (
-                                                <p>{item.scientificName}</p>
+                                            {synonyms?.map((item,i) => (
+                                                <p key={i}>{item.scientificName}</p>
                                             ))}
                                         </Grid>
                                         <Grid item className={classes.textCenter}>
                                             <h5>Author</h5>
-                                            {synonyms?.map((item) => (
-                                                <p>{item.authorship}</p>
+                                            {synonyms?.map((item,i) => (
+                                                <p key={i}>{item.authorship}</p>
                                             ))}
                                         </Grid>
                                     </Grid>
@@ -233,8 +227,8 @@ console.log(metadata);
             <h4>Parents</h4>
             <span><i>Click each to explore the children species.</i></span>
             <ul>
-                {parents?.map((parent) => (
-                    <li>{parent.rank} - {parent.canonicalName}</li>
+                {parents?.map((parent,i) => (
+                    <li key={i}>{parent.rank} - {parent.canonicalName}</li>
                 ))}
             </ul>
         </Grid>
@@ -246,8 +240,8 @@ console.log(metadata);
             <h4>Children</h4>
             <span><i>Click each to view more details.</i></span>
             <ul>
-                {children.results?.map((child) => (
-                    <li>{child.rank} - {child.canonicalName}</li>
+                {children.results?.map((child,i) => (
+                    <li key={i}>{child.rank} - {child.canonicalName}</li>
                 ))}
             </ul>
         </Grid>
@@ -259,31 +253,83 @@ const Species = props => {
 
     let { id } = useParams();
 
-    const { data, loading, error } = useGetSpecies(
+    const { 
+        data: metadata, 
+        loading:metadataLoading, 
+        error:metadataError 
+        } = useFetch(
         `species/${id}`,
         []
     );
 
-    const occurrenceImages = OccurrenceImages(id)
-    const occurrenceDatasets = OccurrenceDatasets(id)
-    const speciesVernacularNames = SpeciesVernacularNames(id)
-    const speciesSynonyms = SpeciesSynonyms(id);
-    const speciesChildren = SpeciesChildren(id);
-    const speciesParent = SpeciesParent(id)
+    const { 
+        data:occurrenceImages, 
+        loading:occurrenceImagesLoading, 
+        error:occurrenceImagesError 
+        } = useFetch(
+        `occurrence/search?limit=8&media_type=stillImage&taxon_key=${id}`,
+        []
+    );
 
-    return ((loading) 
+    const { 
+        data:occurrenceDatasets, 
+        loading:occurrenceDatasetsLoading, 
+        error:occurrenceDatasetsError 
+        } = useFetch(
+        `/occurrence/search?limit=8&taxon_key=${id}`,
+        []
+    );
+
+    const { 
+        data:speciesVernacularNames, 
+        loading:speciesVernacularNamesLoading, 
+        error:speciesVernacularNamesError 
+        } = useFetch(
+        `species/${id}/vernacularNames`,
+        []
+    );
+
+    const { 
+        data:speciesSynonyms, 
+        loading:speciesSynonymsLoading, 
+        error:speciesSynonymsError 
+        } = useFetch(
+        `/species/${id}/synonyms?limit=10`,
+        []
+    );
+
+    const { 
+        data:speciesChildren, 
+        loading:speciesChildrenLoading, 
+        error:speciesChildrenError 
+        } = useFetch(
+        `/species/${id}/children?limit=100`,
+        []
+    );
+
+    const { 
+        data:speciesParent, 
+        loading:speciesParentLoading, 
+        error:speciesParentError 
+        } = useFetch(
+        `/species/${id}/parents`,
+        []
+    );
+
+
+    return ((metadataLoading,occurrenceImagesLoading,occurrenceDatasetsLoading,speciesVernacularNamesLoading,speciesSynonymsLoading,speciesChildrenLoading,speciesParentLoading) 
         ? <h1>Loading</h1>
         : <Dashboard 
             sidebar={
                 <Sidebar 
-                    metadata={data}
+                    metadata={metadata}
                     children={speciesChildren}
                     parents={speciesParent}
                 />
             } 
             mainContent={
                <MainContent 
-                    metadata={data}
+                    metadata={metadata}
                     images={occurrenceImages} 
                     datasets={occurrenceDatasets} 
                     vernacularNames={speciesVernacularNames.results} 
@@ -294,10 +340,6 @@ const Species = props => {
             }
         />
     )
-}
-
-Species.propTypes = {
-
 }
 
 export default Species
