@@ -1,45 +1,53 @@
 h1 {
-  font-family: 'Alegreya Sans', sans-serif;
+  font-family: 'Assistant', 'Alegreya Sans', sans-serif;
   font-size: 3rem;
   margin: 1rem 0rem;
 }
 h2 {
-  font-family: 'Alegreya Sans', sans-serif;
-  font-size: 2.2rem;
-  margin: 0.72rem 0rem;
+  font-family: 'Work Sans', 'Raleway', sans-serif;
+  font-size: 2rem;
+  margin: 0.66rem 0rem;
 }
 h3 {
   font-family: 'Raleway', sans-serif;
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
   font-size: 1.7rem;
   margin: 0.56rem 0rem;
 }
 h4 {
   font-family: 'Raleway', sans-serif;
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
   font-size: 1.3rem;
   margin: 0.42rem 0rem;
 }
 h5 {
   font-family: 'Raleway', sans-serif;
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
   font-size: 1.1rem;
   margin: 0.36rem 0rem;
 }
 h6 {
   font-family: 'Raleway', sans-serif;
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
   font-size: 1rem;
   margin: 0.33rem 0rem;
 }
 p {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Khula', 'Raleway', sans-serif;
+  font-size: 1.2rem;
 }
 span {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Khula', 'Raleway', sans-serif !important;
 }
 a {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Khula', 'Raleway', sans-serif;
+}
+li {
+  color: #65594d;
+  font-family: 'Khula', 'Raleway', sans-serif;
+}
+img:not([alt]) {
+  border: 4px red dashed !important;
 }
 .App {
   text-align: center;
