@@ -1,10 +1,13 @@
 import React, {useState, useEffect} from 'react'
 
-import {useGetSpecies} from '../hooks/useGetSpecies'
+import {useFetchSearch} from '../hooks/useFetchSearch'
+
+import {BrowserRouter as Router,Link} from "react-router-dom";
 
 import PropTypes from 'prop-types'
 
-import { Grid,Button,Paper,TextField,FormGroup,FormControlLabel,Checkbox,Divider  } from '@material-ui/core';
+import { Grid,Button,Paper,TextField,FormGroup,FormControlLabel,Checkbox,Divider } from '@material-ui/core';
+import {Pagination} from '@material-ui/lab'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import {makeStyles} from '@material-ui/core/styles';
@@ -22,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
     },
     results: {
         padding: '0px 40px',
-        // overflow: 'auto',
         flexGrow: 1,
         height: '100%',
     },
@@ -50,16 +52,24 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+let PaginationControlled = ({totalPages,currentPage,pageChange}) => {
+    return (
+        <Pagination count={totalPages} page={currentPage} variant="outlined" shape="rounded" onChange={pageChange}  />
+    )
+}
+
+PaginationControlled.defaultProps = {
+    limit: 20,
+    offset: 20,
+}
+
 // Left side of the dashboard
 const Sidebar = ({facets,onChange,selectedFilters}) => {
     const classes = useStyles();
-
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
             <Grid item>
-               
                 <h3>Filters</h3>
-              
                 <TextField className={classes.textfield} id="outlined-basic" label="Name, description, class" variant="outlined" />
             </Grid>
             {facets.map((facet,facetIndex) => (
@@ -71,22 +81,14 @@ const Sidebar = ({facets,onChange,selectedFilters}) => {
                     <Divider/>
                     <FormGroup>
                     {facet.counts.map((fieldOptions, fieldIndex) => (
-                       
                         <FormControlLabel
                             key={fieldIndex}
-                            control={<Checkbox checked={true}/>}
+                            onChange={onChange}
+                            control={<Checkbox checked={Object.values(selectedFilters[facetIndex])[1]?.includes(fieldOptions.name)}/>}
                             label={fieldOptions.name.split('_').join(' ').toLowerCase()}
-                            value={facet.field}
+                            value={fieldOptions.name}
+                            name={facet.field}
                         />
-                         /* <FormControlLabel
-                            key={fieldIndex}
-                            control={<Checkbox checked={(selectedFilters[facetIndex] === undefined)
-                                ? Object.values(selectedFilters[facetIndex])[1]?.includes(fieldOptions.name)
-                                : false} onChange={onChange} name={fieldOptions.name} />}
-                            label={fieldOptions.name.split('_').join(' ').toLowerCase()}
-                            value={facet.field}
-                        /> */
-                   
                     ))}
                     </FormGroup>
                 </Grid>
@@ -95,9 +97,16 @@ const Sidebar = ({facets,onChange,selectedFilters}) => {
     )
 }
 
+Sidebar.propTypes = {
+    facets: PropTypes.array,
+    onChange: PropTypes.number,
+    selectedFilters: PropTypes.array,
+}
+
 // Right side of the dashboard
-const MainContent = ({count,results}) => {
+const MainContent = ({count,results,offset,limit,pageChange,currentPage}) => {
     const classes = useStyles();
+    let totalPages = Math.ceil(count/offset);
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
             <Grid item className={classes.contentHeader}>
@@ -134,7 +143,7 @@ const MainContent = ({count,results}) => {
                                     <Grid item>
                                         <p>Occurrences: {result.numOccurrences}</p>
                                     </Grid>
-                                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation>view this species</Button></Grid>
+                                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation><Link to={`/species/${result.key}`}>View this Species</Link></Button></Grid>
                                 </Grid>
                             </Grid>
                             <Grid item>
@@ -143,6 +152,9 @@ const MainContent = ({count,results}) => {
                         </Grid>
                     </Paper>
                 ))}
+                <Paper elevation={0} className={classes.card}>
+                 <PaginationControlled currentPage={currentPage} totalPages={totalPages} pageChange={pageChange} />
+                </Paper>
             </Grid>
         </Grid>
     )
@@ -150,85 +162,55 @@ const MainContent = ({count,results}) => {
 
 MainContent.propTypes = {
     count: PropTypes.number,
-    results: PropTypes.array   
+    results: PropTypes.array,
+    offset: PropTypes.number,
+    limit: PropTypes.number,
+    pageChange: PropTypes.func
 }
 
 const Search = ({type}) => {
     const classes = useStyles();
-    let endpointPath = '/search/species/';
 
-    // Custom hook to fetch species
-    const { data, loading, error } = useGetSpecies(
-        'species/search?advanced=true&facet=rank&facet=dataset_key&facet=constituent_key&facet=highertaxon_key&facet=name_type&facet=status&facet=issue&facet=origin&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100',
+    const [endpoint, setEndpoint] = useState(`species/search?advanced=true&facet=rank&facet=dataset_key&facet=constituent_key&facet=highertaxon_key&facet=name_type&facet=status&facet=issue&facet=origin&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100`)
+
+    const [selectedFilter, setSelectedFilter] = useState({});
+
+    const { data, loading, error, filters } = useFetchSearch(
+        endpoint,
+        selectedFilter,
         []
     );
 
-    const [filters, setFilters] = useState([{"ORIGIN": ["PROPARTE"]}]);
-        console.log(filters)
-        
-    useEffect(() => {
-        if(!loading) {
-            // Initialize local state for managing filter changes (User selecting a filter option)
-            setFilters(data.facets.map((facet)=> {
-                return {[facet.field]: []}
-            }))
-        }
-    }, [])
-
     let filterSelect = (e) => {
-        let group = e.target.value;
-        let selectedValue = e.target.name;
-
-        setFilters([...filters].map(filter => {
-            if(Object.keys(filter)[0] == group){
-                if(Object.values(filter)[0].length == 0){
-                    console.log('hi')
-                    return {
-                        ...filter,
-                        [group]: [selectedValue]
-                    }
-                }
-                else if(Object.values(filter)[0].includes(selectedValue)){
-                    return {
-                        ...filter,
-                        [group]: Object.values(filter)[0].filter((value) => selectedValue !== value)
-                    }
-                } 
-                else {
-                    return {
-                        ...filter,
-                        [group]: [...Object.values(filter)[0], selectedValue]
-                    }
-                }
-            }
-            return filter;
-        }))
-
-        // Reconstruct endpoint to update results shown
-        // Update browser url to reflect filters selected
+        let group = e.target.name;
+        let selectedValue = e.target.value;
+        setSelectedFilter({[group]:selectedValue})
     }
 
-    let composeEndpoint = (parameters) => {
+    const [currentPage, setCurrentPage] = useState(data.offset/data.limit);
+    const pageChange = (event, value) => {
+        setCurrentPage(value);
+    } 
 
-        console.log(`${endpointPath}${parameters.join('/')}`)
-    }
-
-    composeEndpoint.propTypes = {
-        path: PropTypes.string,
-        parameters: PropTypes.array
-    }
-    
-
-    // console.log(initialFilters);
-    // console.log(data);
     return ((loading) 
         ? <h1>Loading</h1>
         : <Dashboard 
             sidebar={
-                <Sidebar facets={data.facets} onChange={filterSelect} selectedFilters={filters}/>
+                <Sidebar 
+                    facets={data.facets} 
+                    onChange={filterSelect}
+                    selectedFilters={filters}
+                />
             } 
             mainContent={
-                <MainContent count={data.count} results={data.results}/>
+                <MainContent 
+                    count={data.count} 
+                    results={data.results} 
+                    offset={data.offset} 
+                    limit={data.limit} 
+                    pageChange={pageChange} 
+                    currentPage={currentPage}
+                />
             }
         />
     )
