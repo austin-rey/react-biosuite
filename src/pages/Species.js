@@ -6,7 +6,7 @@ import {BrowserRouter as Router,Link,useParams} from "react-router-dom";
 
 import Moment from 'react-moment';
 
-import {useFetch} from '../hooks/useFetch'
+import {useFetchSpecies} from '../hooks/useFetchSpecies'
 
 import {makeStyles} from '@material-ui/core/styles';
 
@@ -332,7 +332,7 @@ const Species = props => {
         data: metadata, 
         loading:metadataLoading, 
         error:metadataError 
-        } = useFetch(
+        } = useFetchSpecies(
         `species/${id}`,
         []
     );
@@ -341,7 +341,7 @@ const Species = props => {
         data:occurrenceImages, 
         loading:occurrenceImagesLoading, 
         error:occurrenceImagesError 
-        } = useFetch(
+        } = useFetchSpecies(
         `occurrence/search?limit=8&media_type=stillImage&taxon_key=${id}`,
         []
     );
@@ -350,7 +350,7 @@ const Species = props => {
         data:occurrenceDatasets, 
         loading:occurrenceDatasetsLoading, 
         error:occurrenceDatasetsError 
-        } = useFetch(
+        } = useFetchSpecies(
         `/occurrence/search?limit=8&taxon_key=${id}`,
         []
     );
@@ -359,7 +359,7 @@ const Species = props => {
         data:speciesVernacularNames, 
         loading:speciesVernacularNamesLoading, 
         error:speciesVernacularNamesError 
-        } = useFetch(
+        } = useFetchSpecies(
         `species/${id}/vernacularNames`,
         []
     );
@@ -368,7 +368,7 @@ const Species = props => {
         data:speciesSynonyms, 
         loading:speciesSynonymsLoading, 
         error:speciesSynonymsError 
-        } = useFetch(
+        } = useFetchSpecies(
         `/species/${id}/synonyms?limit=10`,
         []
     );
@@ -377,7 +377,7 @@ const Species = props => {
         data:speciesChildren, 
         loading:speciesChildrenLoading, 
         error:speciesChildrenError 
-        } = useFetch(
+        } = useFetchSpecies(
         `/species/${id}/children?limit=100`,
         []
     );
@@ -386,7 +386,7 @@ const Species = props => {
         data:speciesParent, 
         loading:speciesParentLoading, 
         error:speciesParentError 
-        } = useFetch(
+        } = useFetchSpecies(
         `/species/${id}/parents`,
         []
     );
