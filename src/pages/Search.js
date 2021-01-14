@@ -13,12 +13,14 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import {makeStyles} from '@material-ui/core/styles';
 
 import Dashboard from '../components/Dashboard'
+import Loading from '../components/Loading'
+import MapboxGLMap from '../components/MapboxGLMap'
 
 // Component css styles
 const useStyles = makeStyles((theme) => ({
     contentHeader: {
         backgroundColor: theme.palette.brown.light,
-        padding: '40px'
+        padding: '20px 40px'
     },
     resultsHeader: {
         padding: '10px 40px',
@@ -48,7 +50,10 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: '#fff',
         border: '1px solid #F0E9E1',
         borderRadius: '5px',
-
+    },
+    link: {
+        color: "#fff",
+        textDecoration: 'none'
     }
 }));
 
@@ -104,20 +109,13 @@ Sidebar.propTypes = {
 }
 
 // Right side of the dashboard
-const MainContent = ({count,results,offset,limit,pageChange,currentPage}) => {
+const MainContent = ({count,results,pageChange,currentPage,totalPages}) => {
     const classes = useStyles();
-    let totalPages = Math.ceil(count/offset);
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
             <Grid item className={classes.contentHeader}>
                 <h1 className={classes.pageTitle}>Species</h1>
                 <p>Searching for species with the following filters:</p>
-                <Grid container direction="row" justify="flex-start" alignItems="flex-start" spacing={2}>
-                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation>Filter</Button></Grid>
-                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation>Filter</Button></Grid>
-                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation>Filter</Button></Grid>
-                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation>Filter</Button></Grid>
-                </Grid>
             </Grid>
             <Grid item className={classes.resultsHeader}>
                 <Grid container direction="row" justify="space-between" alignItems="flex-start">
@@ -128,6 +126,7 @@ const MainContent = ({count,results,offset,limit,pageChange,currentPage}) => {
             </Grid>
             <Grid item className={classes.results}>
                 {results.map((result,i) => (
+              
                     <Paper key={i} elevation={0} className={classes.card}>
                         <Grid container direction="row" justify="space-between" alignItems="flex-start">
                             <Grid item>
@@ -135,19 +134,27 @@ const MainContent = ({count,results,offset,limit,pageChange,currentPage}) => {
                                     <Grid item>
                                         <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
                                             <Grid item><h2>{result.scientificName}</h2></Grid>
-                                            <Grid item><p>class/class/class/class/class</p></Grid>
-                                            <Grid item><p>species</p></Grid>
-                                            <Grid item><p>accepted</p></Grid>
                                         </Grid>
                                     </Grid>
                                     <Grid item>
-                                        <p>Occurrences: {result.numOccurrences}</p>
+                                        <Grid container direction="row" spacing={2}>
+                                            <Grid item>
+                                                <p>
+                                                    {Object.keys(result.higherClassificationMap).length !== 0 && Object.values(result.higherClassificationMap).map((item) => (
+                                                        ' / '+ item))}
+                                                </p>
+                                            </Grid>
+                                            <Grid item><p>{result.rank}</p></Grid>
+                                            <Grid item><p>{result.taxonomicStatus}</p></Grid>
+                                            <Grid item><p>{result.numOccurrences}</p></Grid>
+                                        </Grid>
                                     </Grid>
-                                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation><Link to={`/species/${result.key}`}>View this Species</Link></Button></Grid>
+                                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation><Link className={classes.link} to={`/species/${result.key}`}>View this Species</Link></Button></Grid>
                                 </Grid>
                             </Grid>
                             <Grid item>
-                                <img src="https://via.placeholder.com/250x150.png" alt=""/>
+                                {console.log(result.key)}
+                                <MapboxGLMap taxonKey={result.key} width={512} height={168}/>
                             </Grid>
                         </Grid>
                     </Paper>
@@ -171,29 +178,26 @@ MainContent.propTypes = {
 const Search = ({type}) => {
     const classes = useStyles();
 
-    const [endpoint, setEndpoint] = useState(`species/search?advanced=true&facet=rank&facet=dataset_key&facet=constituent_key&facet=highertaxon_key&facet=name_type&facet=status&facet=issue&facet=origin&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100`)
-
     const [selectedFilter, setSelectedFilter] = useState({});
-
-    const { data, loading, error, filters } = useFetchSearch(
-        endpoint,
-        selectedFilter,
-        []
-    );
-
     let filterSelect = (e) => {
         let group = e.target.name;
         let selectedValue = e.target.value;
         setSelectedFilter({[group]:selectedValue})
     }
 
-    const [currentPage, setCurrentPage] = useState(data.offset/data.limit);
+    const [currentPage, setCurrentPage] = useState(1);
     const pageChange = (event, value) => {
         setCurrentPage(value);
     } 
 
+    const { data, loading, error, filters, totalPages, densityMaps} = useFetchSearch(
+        selectedFilter,
+        currentPage,
+        []
+    );
+
     return ((loading) 
-        ? <h1>Loading</h1>
+        ? <Loading/>
         : <Dashboard 
             sidebar={
                 <Sidebar 
@@ -206,10 +210,10 @@ const Search = ({type}) => {
                 <MainContent 
                     count={data.count} 
                     results={data.results} 
-                    offset={data.offset} 
-                    limit={data.limit} 
                     pageChange={pageChange} 
                     currentPage={currentPage}
+                    totalPages={totalPages}
+                    densityMaps={densityMaps}
                 />
             }
         />
