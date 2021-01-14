@@ -4,31 +4,32 @@ h1 {
   margin: 1rem 0rem;
 }
 h2 {
-  font-family: 'Work Sans', 'Raleway', sans-serif;
+  font-family: 'Mukta Vaani', 'Work Sans', 'Raleway';
+  letter-spacing: 0.5px;
   font-size: 2rem;
   margin: 0.66rem 0rem;
 }
 h3 {
-  font-family: 'Raleway', sans-serif;
-  letter-spacing: 1px;
+  font-family: 'Mukta Vaani', 'Raleway', sans-serif;
+  letter-spacing: 0.5px;
   font-size: 1.7rem;
   margin: 0.56rem 0rem;
 }
 h4 {
   font-family: 'Raleway', sans-serif;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-size: 1.3rem;
   margin: 0.42rem 0rem;
 }
 h5 {
   font-family: 'Raleway', sans-serif;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-size: 1.1rem;
   margin: 0.36rem 0rem;
 }
 h6 {
   font-family: 'Raleway', sans-serif;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-size: 1rem;
   margin: 0.33rem 0rem;
 }
@@ -43,7 +44,7 @@ a {
   font-family: 'Khula', 'Raleway', sans-serif;
 }
 li {
-  color: #65594d;
+  font-size: 1rem;
   font-family: 'Khula', 'Raleway', sans-serif;
 }
 img:not([alt]) {

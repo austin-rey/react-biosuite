@@ -6,6 +6,7 @@ import { Container,CssBaseline,createMuiTheme,ThemeProvider } from '@material-ui
 import { makeStyles } from '@material-ui/core/styles'
 
 import Navigation from './components/Navigation'
+import Footer from './components/Footer'
 
 import Landing from './pages/Landing'
 import Search from './pages/Search'
@@ -28,12 +29,19 @@ const theme = createMuiTheme({
     },
     grey: {
       light: "#F5F6F8"
+    },
+    green: {
+      light: "#989C86",
+      main: "#7B8167",
+      dark: "#4F5837"
     }
   }
 });
 
 const useStyles = makeStyles({
-  root: {},
+  root: {
+    height: '100vh',
+  },
   container: {
     padding: '10px',
     height: '100%',
@@ -74,6 +82,7 @@ function App() {
             <Publisher/>
           </Route>
         </Router>
+        <Footer/>
       </div>
     </ThemeProvider>
   );
