@@ -14,6 +14,7 @@ import { Grid,Button,Paper,Divider,Card,CardMedia,CardContent,CardActions } from
 import Pagination from '@material-ui/lab/Pagination';
 
 import Dashboard from '../components/Dashboard'
+import Loading from '../components/Loading'
 
 import MapboxGLMap from '../components/MapboxGLMap'
 // Component css styles
@@ -392,7 +393,7 @@ const Species = props => {
     );
 
     return ((metadataLoading && occurrenceImagesLoading && occurrenceDatasetsLoading && speciesVernacularNamesLoading && speciesSynonymsLoading && speciesChildrenLoading && speciesParentLoading) 
-        ? <h1>Loading</h1>
+        ? <Loading/>
         : <Dashboard 
             sidebar={
                 <Sidebar 
