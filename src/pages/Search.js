@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 
-import {useFetchSearch} from '../hooks/useFetchSearch'
+import { useFetchSearch } from '../hooks/useFetchSearch'
 
 import {BrowserRouter as Router,Link} from "react-router-dom";
 
@@ -69,15 +69,15 @@ PaginationControlled.defaultProps = {
 }
 
 // Left side of the dashboard
-const Sidebar = ({facets,onChange,selectedFilters}) => {
+const Sidebar = ({facets,onChange,onSearchChange,selectedFilters}) => {
     const classes = useStyles();
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
             <Grid item>
                 <h3>Filters</h3>
-                <TextField className={classes.textfield} id="outlined-basic" label="Name, description, class" variant="outlined" />
+                <TextField className={classes.textfield} onChange={onSearchChange} id="outlined-basic" label="Name, description, class" variant="outlined" />
             </Grid>
-            {facets.map((facet,facetIndex) => (
+            {facets && facets.map((facet,facetIndex) => (
                 <Grid key={facetIndex} item className={classes.filterContainer}>
                     <Grid container direction="row" justify="space-between" alignItems="center">
                         <Grid item><h4>{facet.field.split('_').join(' ')}</h4></Grid>
@@ -153,8 +153,7 @@ const MainContent = ({count,results,pageChange,currentPage,totalPages}) => {
                                 </Grid>
                             </Grid>
                             <Grid item>
-                                {console.log(result.key)}
-                                <MapboxGLMap taxonKey={result.key} width={512} height={168}/>
+                                {/* <MapboxGLMap taxonKey={result.key} width={512} height={168}/> */}
                             </Grid>
                         </Grid>
                     </Paper>
@@ -178,45 +177,121 @@ MainContent.propTypes = {
 const Search = ({type}) => {
     const classes = useStyles();
 
-    const [selectedFilter, setSelectedFilter] = useState({});
-    let filterSelect = (e) => {
+    const { 
+        isLoading,
+        data,
+        error,
+        execute
+    } = useFetchSearch();
+   
+    const [paginationOptions, setPaginationOptions] = useState({
+        page: 0,
+        limit: 10
+      });
+
+    const [filters, setFilters] = useState([
+        {"ORIGIN": []},
+        {"ISSUE": []},
+        {"STATUS": []},
+        {"NAME_TYPE": []},
+        {"RANK": []},
+        {"DATASET_KEY": []},
+        {"CONSTITUENT_KEY": []},
+        {"HIGHERTAXON_KEY": []},
+    ]);  
+    
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const pageChange = (e) => {
+        setPaginationOptions((prevOptions) => ({
+            ...prevOptions,
+            page: prevOptions.page + 1
+        }));
+        const nextPage = paginationOptions.page + 1;
+        execute({
+            paginationOptions,
+            filters,
+            searchQuery,
+            page: nextPage
+        })
+    }
+    
+    const filterSelect = (e) => {
         let group = e.target.name;
         let selectedValue = e.target.value;
-        setSelectedFilter({[group]:selectedValue})
+    
+        setFilters(filters.map(filter => {
+          if(Object.keys(filter)[0] == group){
+            if(Object.values(filter)[0].length == 0){
+              return {
+                ...filter,
+                [group]: [selectedValue]
+              }
+            }
+            else if(Object.values(filter)[0].includes(selectedValue)){
+              return {
+                ...filter,
+                [group]: Object.values(filter)[0].filter((value) => selectedValue !== value)
+              }
+            } 
+            else {
+              return {
+                ...filter,
+                [group]: [...Object.values(filter)[0], selectedValue]
+              }
+            }
+          }
+          return filter;
+        }))
+        execute({
+            paginationOptions,
+            filters,
+            searchQuery});
     }
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageChange = (event, value) => {
-        setCurrentPage(value);
-    } 
+    const searchChange = (e)=> {
+        e.persist();
+        setSearchQuery(e.target.value)
+        let searchQuery = e.target.value;
+        console.log(typeof query)
+        execute({
+            paginationOptions,
+            filters,
+            searchQuery});
+    }
 
-    const { data, loading, error, filters, totalPages, densityMaps} = useFetchSearch(
-        selectedFilter,
-        currentPage,
-        []
-    );
+    useEffect(() => {
+        try {
+          execute({
+            paginationOptions,
+            filters,
+            searchQuery});
+        } catch (error) {}
+      }, [execute]);
 
-    return ((loading) 
-        ? <Loading/>
-        : <Dashboard 
-            sidebar={
-                <Sidebar 
-                    facets={data.facets} 
-                    onChange={filterSelect}
-                    selectedFilters={filters}
-                />
-            } 
-            mainContent={
-                <MainContent 
-                    count={data.count} 
-                    results={data.results} 
-                    pageChange={pageChange} 
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    densityMaps={densityMaps}
-                />
+      return (
+        <>
+            {data && <Dashboard 
+                sidebar={
+                    <Sidebar 
+                        facets={data.facets} 
+                        onChange={filterSelect}
+                        onSearchChange={searchChange}
+                        selectedFilters={filters}
+                    />
+                } 
+                mainContent={
+                    <MainContent 
+                        count={data.count} 
+                        results={data.results} 
+                        pageChange={pageChange} 
+                        currentPage={paginationOptions.page}
+                        totalPages={10}
+                    /> 
+                }
+            />
             }
-        />
+        </>
     )
 }
 
