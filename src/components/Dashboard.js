@@ -3,7 +3,7 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { makeStyles } from '@material-ui/core/styles';
-import {Drawer,Typography,Divider,Container,CssBaseline} from '@material-ui/core';
+import {Drawer,CssBaseline} from '@material-ui/core';
 
 const drawerWidth = 300;
 
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.brown.main,
     padding: theme.spacing(2),
     position: 'relative',
-    whiteSpace: 'nowrap',
+    whiteSpace: 'wrap',
     width: drawerWidth,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     }),
   },
   content: {
-      overflow: 'hidden',
+    overflow: 'hideen',
     flexGrow: 1,
     backgroundColor: theme.palette.grey.light
   },
@@ -53,6 +53,7 @@ const Dashboard = (props) => {
         {props.sidebar}
       </Drawer>
       <main className={classes.content}>
+      
            {props.mainContent}
       </main>
     </div>
