@@ -4,23 +4,12 @@ import PropTypes from 'prop-types'
 
 import gbif from '../api/gbif'
 
-export const fetchSearch = async ({paginationOptions,filters,searchQuery}) => {
-  const offset = (paginationOptions.page*paginationOptions.limit)
-console.log(searchQuery);
-  // Convert filters selected into string of parameters that match API specifications
-  let filterStrings = filters.map((filter) => {
-    if(Object.values(filter)[0].length != 0) {
-      return Object.values(filter)[0].map((option) => {
-        return `&${Object.keys(filter)[0]}=${option}`
-      })
-    }
-  }).flat().filter(item => item!=null).join('')
+export const fetchSearch = async ({paginationOptions,filterStrings="",searchQuery,page=1}) => {
+  const offset = (page*paginationOptions.limit)  
 
-  console.log(`species/search?advanced=true&facet=rank&facet=dataset_key&facet=constituent_key&facet=highertaxon_key&facet=name_type&facet=status&facet=issue&facet=origin&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100&limit=${paginationOptions.limit}&offset=${offset}&q=${searchQuery}${filterStrings}`)
+  console.log(page)
+  const response = await gbif.get(`/species/search?advanced=false&dataset_key=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&facet=rank&facet=highertaxon_key&facet=status&facet=issue&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100&limit=${paginationOptions.limit}&offset=${offset}${filterStrings}&q=${searchQuery}`)  
 
-  const response = await gbif.get(`species/search?advanced=true&facet=rank&facet=dataset_key&facet=constituent_key&facet=highertaxon_key&facet=name_type&facet=status&facet=issue&facet=origin&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100&limit=${paginationOptions.limit}&offset=${offset}&q=${searchQuery}${filterStrings}`)  
-  
-  // console.log(response.data)
   return response.data;
 }
 

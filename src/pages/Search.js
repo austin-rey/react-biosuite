@@ -69,7 +69,7 @@ PaginationControlled.defaultProps = {
 }
 
 // Left side of the dashboard
-const Sidebar = ({facets,onChange,onSearchChange,selectedFilters}) => {
+const Sidebar = ({facets,onChange,onSearchChange,selectedFilters,loading}) => {
     const classes = useStyles();
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
@@ -86,14 +86,18 @@ const Sidebar = ({facets,onChange,onSearchChange,selectedFilters}) => {
                     <Divider/>
                     <FormGroup>
                     {facet.counts.map((fieldOptions, fieldIndex) => (
-                        <FormControlLabel
-                            key={fieldIndex}
-                            onChange={onChange}
-                            control={<Checkbox checked={Object.values(selectedFilters[facetIndex])[1]?.includes(fieldOptions.name)}/>}
-                            label={fieldOptions.name.split('_').join(' ').toLowerCase()}
-                            value={fieldOptions.name}
-                            name={facet.field}
-                        />
+                        <>
+                            <FormControlLabel
+                                disabled={loading}
+                                key={fieldIndex}
+                                onChange={onChange}
+                                control={<Checkbox checked={Object.values(selectedFilters[facetIndex])[1]?.includes(fieldOptions.name)}/>}
+                                label={fieldOptions.name.split('_').join(' ').toLowerCase()}
+                                value={fieldOptions.name}
+                                name={facet.field}
+                            />
+                            <span>{fieldOptions.count}</span>
+                        </>
                     ))}
                     </FormGroup>
                 </Grid>
@@ -109,7 +113,7 @@ Sidebar.propTypes = {
 }
 
 // Right side of the dashboard
-const MainContent = ({count,results,pageChange,currentPage,totalPages}) => {
+const MainContent = ({count,results,pageChange,currentPage,totalPages,loading}) => {
     const classes = useStyles();
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
@@ -117,51 +121,50 @@ const MainContent = ({count,results,pageChange,currentPage,totalPages}) => {
                 <h1 className={classes.pageTitle}>Species</h1>
                 <p>Searching for species with the following filters:</p>
             </Grid>
-            <Grid item className={classes.resultsHeader}>
-                <Grid container direction="row" justify="space-between" alignItems="flex-start">
-                    <Grid item><p>Results: {count}</p></Grid>
-                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation>Sort</Button></Grid>
-                   
+            {(loading)?<Loading/>:<>
+                <Grid item className={classes.resultsHeader}>
+                    <Grid container direction="row" justify="space-between" alignItems="center">
+                        <Grid item><p>Results: {count}</p></Grid>
+                    </Grid>
                 </Grid>
-            </Grid>
-            <Grid item className={classes.results}>
-                {results.map((result,i) => (
-              
-                    <Paper key={i} elevation={0} className={classes.card}>
-                        <Grid container direction="row" justify="space-between" alignItems="flex-start">
-                            <Grid item>
-                                <Grid container direction="column" justify="flex-start" alignItems="flex-start">
+                    <Grid item className={classes.results}>
+                        {results.map((result,i) => (
+                            <Paper key={i} elevation={0} className={classes.card}>
+                                <Grid container direction="row" justify="space-between" alignItems="flex-start">
                                     <Grid item>
-                                        <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
-                                            <Grid item><h2>{result.scientificName}</h2></Grid>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid item>
-                                        <Grid container direction="row" spacing={2}>
+                                        <Grid container direction="column" justify="flex-start" alignItems="flex-start">
                                             <Grid item>
-                                                <p>
-                                                    {Object.keys(result.higherClassificationMap).length !== 0 && Object.values(result.higherClassificationMap).map((item) => (
-                                                        ' / '+ item))}
-                                                </p>
+                                                <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
+                                                    <Grid item><h2>{result.scientificName}</h2></Grid>
+                                                </Grid>
                                             </Grid>
-                                            <Grid item><p>{result.rank}</p></Grid>
-                                            <Grid item><p>{result.taxonomicStatus}</p></Grid>
-                                            <Grid item><p>{result.numOccurrences}</p></Grid>
+                                            <Grid item>
+                                                <Grid container direction="row" spacing={2}>
+                                                    <Grid item>
+                                                        <p>
+                                                            {Object.keys(result.higherClassificationMap).length !== 0 && Object.values(result.higherClassificationMap).map((item) => (
+                                                                ' / '+ item))}
+                                                        </p>
+                                                    </Grid>
+                                                    <Grid item><p>{result.rank}</p></Grid>
+                                                    <Grid item><p>{result.taxonomicStatus}</p></Grid>
+                                                    <Grid item><p>{result.numOccurrences}</p></Grid>
+                                                </Grid>
+                                            </Grid>
+                                            <Grid item><Button disabled={loading} variant="contained" className={classes.filterButton} disableElevation><Link className={classes.link} to={`/species/${result.key}`}>View this Species</Link></Button></Grid>
                                         </Grid>
                                     </Grid>
-                                    <Grid item><Button variant="contained" className={classes.filterButton} disableElevation><Link className={classes.link} to={`/species/${result.key}`}>View this Species</Link></Button></Grid>
+                                    <Grid item>
+                                        {/* <MapboxGLMap taxonKey={result.key} width={512} height={168}/> */}
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                            <Grid item>
-                                {/* <MapboxGLMap taxonKey={result.key} width={512} height={168}/> */}
-                            </Grid>
-                        </Grid>
+                            </Paper>
+                        ))}
+                    <Paper elevation={0} className={classes.card}>
+                        <PaginationControlled currentPage={currentPage} totalPages={totalPages} pageChange={pageChange} />
                     </Paper>
-                ))}
-                <Paper elevation={0} className={classes.card}>
-                 <PaginationControlled currentPage={currentPage} totalPages={totalPages} pageChange={pageChange} />
-                </Paper>
-            </Grid>
+                </Grid>
+            </> }
         </Grid>
     )
 }
@@ -189,74 +192,89 @@ const Search = ({type}) => {
         limit: 10
       });
 
+    // Component state of filters selected
     const [filters, setFilters] = useState([
-        {"ORIGIN": []},
         {"ISSUE": []},
         {"STATUS": []},
         {"NAME_TYPE": []},
         {"RANK": []},
-        {"DATASET_KEY": []},
-        {"CONSTITUENT_KEY": []},
-        {"HIGHERTAXON_KEY": []},
     ]);  
     
+    // Processed "filters" state, array of param strings
+    const [filterStrings, setFilterStrings] = useState([]);  
+
     const [searchQuery, setSearchQuery] = useState('');
 
-    const pageChange = (e) => {
+    const pageChange = (e,value) => {
         setPaginationOptions((prevOptions) => ({
             ...prevOptions,
-            page: prevOptions.page + 1
+            page:value
         }));
-        const nextPage = paginationOptions.page + 1;
         execute({
             paginationOptions,
             filters,
             searchQuery,
-            page: nextPage
+            page: value
         })
     }
     
     const filterSelect = (e) => {
         let group = e.target.name;
         let selectedValue = e.target.value;
-    
-        setFilters(filters.map(filter => {
-          if(Object.keys(filter)[0] == group){
-            if(Object.values(filter)[0].length == 0){
-              return {
-                ...filter,
-                [group]: [selectedValue]
-              }
+
+        // Create an array of strings per each filter ('&[GROUP]=[VALUE]') 
+        let filterStrings = filters.map((filter) => {
+            if(Object.values(filter)[0].length != 0) {
+                return Object.values(filter)[0].map((option) => {
+                    return `&${Object.keys(filter)[0]}=${option}`
+                })
+            }}).flat().filter(item => item!=null)
+
+        // Update component state of selected filters on user selection and adjust filterStrings
+        setFilters(filters.map((filter,i) => {
+            if(Object.keys(filter)[0] == group){
+                if(Object.values(filter)[0].length == 0){
+                    filterStrings.push(`&${group}=${selectedValue}`)
+                    return {
+                        ...filter,
+                        [group]: [selectedValue]
+                    }
+                }
+                else if(Object.values(filter)[0].includes(selectedValue)){
+                    filterStrings.filter((value)=> value !== `${group}=${selectedValue}`)
+                    return {
+                        ...filter,
+                        [group]: Object.values(filter)[0].filter((value) => selectedValue !== value)
+                    }
+                } 
+                else {
+                    filterStrings.push(`&${group}=${selectedValue}`)
+                    return {
+                        ...filter,
+                        [group]: [...Object.values(filter)[0], selectedValue]
+                    }
+                }
             }
-            else if(Object.values(filter)[0].includes(selectedValue)){
-              return {
-                ...filter,
-                [group]: Object.values(filter)[0].filter((value) => selectedValue !== value)
-              }
-            } 
-            else {
-              return {
-                ...filter,
-                [group]: [...Object.values(filter)[0], selectedValue]
-              }
-            }
-          }
-          return filter;
+            return filter;
         }))
-        execute({
-            paginationOptions,
-            filters,
-            searchQuery});
+
+        setFilterStrings(filterStrings)
+
+        try {
+            execute({
+                paginationOptions,
+                filterStrings: filterStrings.join(''),
+                searchQuery});
+        } catch (error) {}
     }
 
     const searchChange = (e)=> {
         e.persist();
         setSearchQuery(e.target.value)
         let searchQuery = e.target.value;
-        console.log(typeof query)
         execute({
             paginationOptions,
-            filters,
+            filterStrings,
             searchQuery});
     }
 
@@ -264,16 +282,18 @@ const Search = ({type}) => {
         try {
           execute({
             paginationOptions,
-            filters,
+            filterStrings,
             searchQuery});
         } catch (error) {}
       }, [execute]);
 
       return (
         <>
+            {!data && <Loading/>}
             {data && <Dashboard 
                 sidebar={
                     <Sidebar 
+                        loading={isLoading}
                         facets={data.facets} 
                         onChange={filterSelect}
                         onSearchChange={searchChange}
@@ -282,6 +302,7 @@ const Search = ({type}) => {
                 } 
                 mainContent={
                     <MainContent 
+                        loading={isLoading}
                         count={data.count} 
                         results={data.results} 
                         pageChange={pageChange} 
