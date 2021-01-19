@@ -4,13 +4,16 @@ import { AppBar,Toolbar,Button,Typography,Container } from '@material-ui/core';
 
 import {BrowserRouter as Router,Link} from "react-router-dom";
 
+import EcoIcon from '@material-ui/icons/Eco';
 const useStyles = makeStyles((theme) => ({
     root: {
       flexGrow: 1,
-      backgroundColor: theme.palette.green.main,
+      backgroundColor: theme.palette.green.dark,
     },
     appBar: {
       boxShadow: 'none',
+      backgroundColor: theme.palette.green.dark,
+
     },
     menuButton: {
       marginRight: theme.spacing(2),
@@ -21,6 +24,9 @@ const useStyles = makeStyles((theme) => ({
     navLink: {
       color: '#fff',
       textDecoration: 'none'
+    },
+    icon: {
+      marginRight: '5px'
     }
 }));
 
@@ -33,14 +39,11 @@ const Navigation = () => {
             <Router>
                 <AppBar position="static" className={classes.appBar}>
                     <Toolbar>
-                        {/* <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-                        <span>o</span>
-                        </IconButton> */}
-                        <Typography variant="h6" className={classes.title}>
+                        <EcoIcon className={classes.icon}/>
+                        <Typography variant="h5" className={classes.title}>
                         BioSuite
                         </Typography>
                         <Button color="inherit"><Link className={classes.navLink} to="/search/species/">Species</Link></Button>
-                        <Button color="inherit"><Link className={classes.navLink} to="/search/occurrence/">Occurrences</Link></Button>
                         <Button color="inherit"><Link className={classes.navLink} to="/search/publisher/">Publishers</Link></Button>
                     </Toolbar>
                 </AppBar>

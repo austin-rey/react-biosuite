@@ -31,9 +31,59 @@ const theme = createMuiTheme({
       light: "#F5F6F8"
     },
     green: {
-      light: "#989C86",
-      main: "#7B8167",
-      dark: "#4F5837"
+      light: "#B5B7A6",
+      main: "#898E77",
+      dark: "#5E6647"
+    }
+  },
+  typography: {
+    h1: {
+      fontFamily: 'Assistant, Alegreya Sans, sans-serif',
+      fontSize: '3rem',
+      margin: '1rem 0rem',
+    },
+    h2: {
+      fontFamily: 'Mukta Vaani, Work Sans, Raleway',
+      letterSpacing: '0.5px',
+      fontSize: '2rem',
+      margin: '0.66rem 0rem',
+    },
+    h3: {
+      fontFamily: 'Mukta Vaani, Raleway sans-serif',
+      letterSpacing:' 0.5px',
+      fontSize: '1.7rem',
+      margin: '0.56rem 0rem',
+    },
+    h4: {
+      fontFamily: 'Raleway, sans-serif',
+      letterSpacing: '0.5px',
+      fontSize: '1.3rem',
+      margin: '0.42rem 0rem',
+    },
+    h5: {
+      fontFamily: 'Raleway, sans-serif',
+      letterSpacing: '0.5px',
+      fontSize: '1.1rem',
+      margin: '0.36rem 0rem',
+    },
+    h6: {
+      fontFamily: 'Raleway, sans-serif',
+      letterSpacing: '0.5px',
+      fontSize: '1rem',
+      margin: '0.33rem 0rem',
+    },
+    body1: {
+      fontFamily: 'Khula, Raleway, sans-serif',
+      fontSize: '1.2rem',
+    }, //<p>
+    body2: {
+      fontFamily: 'Khula, Raleway, sans-serif',
+      fontSize: '1rem',
+    }, //<li>
+    button: {
+      fontFamily: 'Mukta Vaani,Raleway, sans-serif',
+      // fontWeight: 'bold',
+      fontSize: '1rem',
     }
   }
 });
