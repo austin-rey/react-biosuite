@@ -1,13 +1,22 @@
 body {
   margin: 0px !important;
 }
+
 li {
   font-size: 1rem;
   font-family: 'Khula', 'Raleway', sans-serif;
 }
+
+.MuiInputBase-input {
+  background-color: #ffffff !important;
+  border-radius: 5px;
+  border: none !important;
+}
+
 img:not([alt]) {
   border: 4px red dashed !important;
 }
+
 .App {
   text-align: center;
 }

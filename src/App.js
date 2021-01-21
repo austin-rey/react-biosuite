@@ -17,7 +17,7 @@ import Species from './pages/Species'
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: "#7B8167"
+      main: "#5E6647"
     },
     secondary: {
       main: "#ffa500"
@@ -96,8 +96,11 @@ const theme = createMuiTheme({
       fontSize: '1rem',
     }
   },
-  overrides: {
-
+  border: {
+    brown: '1px solid #D8CFC6',
+    green: '1px solid #989C86',
+    light: '1px solid #E9ECEF',
+    dark: '1px solid #343A40'
   }
 });
 
