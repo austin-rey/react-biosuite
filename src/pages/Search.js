@@ -188,33 +188,23 @@ const Search = () => {
         {"NAME_TYPE": []},
         {"RANK": []},
     ]);  
-    
+
     const filterSelect = (e) => {
         let group = e.target.name;
         let selectedValue = e.target.value;
 
-        // Create an array of strings per each filter ('&[GROUP]=[VALUE]') 
-        let filterStrings = filters.map((filter) => {
-            if(Object.values(filter)[0].length != 0) {
-                return Object.values(filter)[0].map((option) => {
-                    return `&${Object.keys(filter)[0]}=${option}`
-                })
-            }}).flat().filter(item => item!=null)
-
-        // Update component state of selected filters on user selection and adjust filterStrings
-        setFilters(filters.map((filter,i) => {
+        // Create an updated array of selected filters
+        let updatedFilters = filters.map((filter,i) => {
             if(Object.keys(filter)[0] == group){
                 if(Object.values(filter)[0].length == 0){
                     console.log('No items in this group are selected')
-                    filterStrings.push(`&${group}=${selectedValue}`)
                     return {
                         ...filter,
                         [group]: [selectedValue]
                     }
                 }
                 else if(Object.values(filter)[0].includes(selectedValue)){
-                    // console.log('This item has been selected')
-                    filterStrings.filter((value) => value != `&${group}=${selectedValue}`)
+                    console.log('This item has been selected')
                     return {
                         ...filter,
                         [group]: Object.values(filter)[0].filter((value) => selectedValue !== value)
@@ -222,7 +212,6 @@ const Search = () => {
                 } 
                 else {
                     console.log('Add this item to the group')
-                    filterStrings.push(`&${group}=${selectedValue}`)
                     return {
                         ...filter,
                         [group]: [...Object.values(filter)[0], selectedValue]
@@ -230,9 +219,17 @@ const Search = () => {
                 }
             }
             return filter;
-        }))
+        })
 
-        console.log(filterStrings);
+        // Create an array of strings per each filter in updatedFilters ('&[GROUP]=[VALUE]') 
+        let filterStrings = updatedFilters.map((filter) => {
+            if(Object.values(filter)[0].length != 0) {
+                return Object.values(filter)[0].map((option) => {
+                    return `&${Object.keys(filter)[0]}=${option}`
+                })
+        }}).flat().filter(item => item!=null)
+
+        setFilters(updatedFilters)
         setFilterStrings(filterStrings)
 
         try {

@@ -4,10 +4,9 @@ import PropTypes from 'prop-types'
 
 import gbif from '../api/gbif'
 
-export const fetchSearch = async ({paginationOptions,filterStrings="",searchQuery,page=1}) => {
+export const fetchSearch = async ({paginationOptions,filterStrings="",searchQuery,page=0}) => {
   const offset = (page*paginationOptions.limit)  
 
-  console.log(page)
   const response = await gbif.get(`/species/search?advanced=false&dataset_key=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&facet=rank&facet=highertaxon_key&facet=status&facet=issue&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100&limit=${paginationOptions.limit}&offset=${offset}${filterStrings}&q=${searchQuery}`)  
 
   return response.data;
