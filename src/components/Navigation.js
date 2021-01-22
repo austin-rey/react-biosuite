@@ -43,8 +43,9 @@ const Navigation = () => {
                         <Typography variant="h5" className={classes.title}>
                         BioSuite
                         </Typography>
-                        <Button color="inherit"><Link className={classes.navLink} to="/search/species/">Species</Link></Button>
-                        <Button color="inherit"><Link className={classes.navLink} to="/search/publisher/">Publishers</Link></Button>
+                        <Link className={classes.navLink} to="/"><Button color="inherit">Home</Button></Link>
+                        <Link className={classes.navLink} to="/search/species/"><Button color="inherit">Species</Button></Link>
+                        <Link className={classes.navLink} to="/search/publisher/"><Button color="inherit">Publishers</Button></Link>
                     </Toolbar>
                 </AppBar>
             </Router>
