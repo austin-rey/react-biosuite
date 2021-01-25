@@ -16,13 +16,12 @@ import PaginationControlled from '../components/Pagination'
 import PageHeader from '../components/PageHeader'
 
 const useStyles = makeStyles((theme) => ({
-    resultsHeader: {
-        padding: '10px 40px',
-    },
+
     results: {
         padding: '0px 40px',
         flexGrow: 1,
         height: '100%',
+        marginTop: '40px'
     },
     card: {
         marginBottom: '10px',
@@ -59,6 +58,12 @@ const useStyles = makeStyles((theme) => ({
     },
     input: {
         backgroundColor: "#fff"
+    },
+    headerBG: {
+        backgroundColor: theme.palette.brown.light,
+    },
+    mw1600: {
+        maxWidth: '1600px'
     }
 }));
 
@@ -69,7 +74,7 @@ const Sidebar = ({facets,onChange,onSearchChange,selectedFilters,loading}) => {
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
             <Grid item>
                 <Typography variant="h3">Filters</Typography>
-                <TextField className={classes.textfield} onChange={onSearchChange} id="outlined-basic" label="Name, description, class" variant="outlined" />
+                <TextField className={classes.textfield} onChange={onSearchChange} id="outlined-basic" placeholder="Name, description, class" label="Search" variant="outlined" />
             </Grid>
             {facets && facets.map((facet,facetIndex) => (
                 <Grid key={facetIndex} item className={classes.filterContainer}>
@@ -92,7 +97,7 @@ const Sidebar = ({facets,onChange,onSearchChange,selectedFilters,loading}) => {
                                 value={fieldOptions.name}
                                 name={facet.field}
                             />
-                            <Typography variant="body2" className={classes.resultsCount} >{fieldOptions.count} results</Typography>
+                            <Typography variant="body2" className={classes.resultsCount} >{fieldOptions.count} Results</Typography>
                         </>
                     ))}
                     </FormGroup>
@@ -112,31 +117,28 @@ Sidebar.propTypes = {
 const MainContent = ({count,results,pageChange,currentPage,totalPages,loading}) => {
     const classes = useStyles();
 
-    const HeadingBody = () => {
-        return (
-            <Typography variant="body1">Searching for species with the following filters:</Typography>
-        )
-    }
-
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
-            <PageHeader heading="Species" HeadingBody={HeadingBody}/>            
-            {(loading)?<Loading/>:<>
-                <Grid item className={classes.resultsHeader}>
-                    <Grid container direction="row" justify="space-between" alignItems="center">
-                        <Grid item><Typography variant="body2">Page: {currentPage} of {totalPages}</Typography></Grid>
-                        <Grid item><Typography variant="body2">Results: {count}</Typography></Grid>
-                    </Grid>
-                </Grid>
+            <Grid item className={classes.headerBG}>
+                <div className={classes.mw1600}>
+                    <PageHeader heading="Species Search"/>            
+                </div>
+            </Grid>
+            {!loading && 
+            <div className={classes.mw1600}>
                     <Grid item className={classes.results}>
                         {results.map((result,i) => (
                             <ResultCard result={result} key={i} loading={loading}/>
                         ))}
                     <Paper elevation={0} className={classes.card}>
-                        <PaginationControlled currentPage={currentPage} totalPages={totalPages} pageChange={pageChange} />
+                    <Grid container direction="row" justify="space-between" alignItems="center" className={classes.pagination}>
+                        <Grid item><PaginationControlled currentPage={currentPage} totalPages={totalPages} onChange={pageChange} /></Grid>
+                        <Grid item>{count} Results</Grid>
+                        </Grid>
                     </Paper>
                 </Grid>
-            </> }
+           </div>}
+           
         </Grid>
     )
 }
@@ -252,6 +254,7 @@ const Search = () => {
             searchQuery});
     }
 
+    console.log(data)
     // Initial fetching of data for the search page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     useEffect(() => {
         try {
