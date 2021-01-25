@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 
 import {Link} from "react-router-dom";
 
@@ -10,7 +10,6 @@ import {makeStyles} from '@material-ui/core/styles';
 
 import { Button,Card,CardMedia,CardContent,CardActions,Typography } from '@material-ui/core';
 
-// Component css styles
 const useStyles = makeStyles((theme) => ({
     viewMoreButton: {
         backgroundColor: theme.palette.green.dark,
@@ -32,31 +31,57 @@ const useStyles = makeStyles((theme) => ({
     link: {
         color: "#fff",
         textDecoration: 'none'
+    },
+    cardContent: {
+        padding: '0px',
+        paddingBottom: '0px !important'
+    },
+    placeHolder: {
+        position: 'absolute',
+        backgroundColor: theme.palette.yellow.main,
+        color: '#fff',
+        width: '30px',
+        height: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '2px'
     }
 }));
 
 
-const ImageCard = ({image,title,created,link}) => {
+const ImageCard = ({image,title,created,link,place}) => {
+
+    const [open, setOpen] = useState(false)
+    const handleOpen = () => {setOpen(true);}
+    const handleClose = () => {setOpen(false);}
+
     const classes = useStyles();
     return (
-        <Card className={classes.card}>
-            <CardMedia
-                className={classes.media}
-                image={image}
-                title={title}
-            />
-            <CardContent>
-                <Typography variant="h4">{title}</Typography>
-                <Typography variant="body2">
-                    Published: {" "} <Moment format="MMM DD, YYYY">{created}</Moment>
-                </Typography>
-            </CardContent>
-            <CardActions>
-                <Button variant="contained" className={classes.viewMoreButton} disableElevation>
-                    <Link className={classes.link} to={link}>view occurrence</Link>
-                </Button>
-            </CardActions>
-        </Card>
+        <>
+            <Card className={classes.card}>
+                <a href={image} target="_blank">
+                    <CardMedia
+                        className={classes.media}
+                        image={image}
+                        title={title}
+                        onClick={handleOpen}
+                    />
+                </a>
+                <CardContent className={classes.cardContent}>
+                    {title && <Typography variant="h4">{title}</Typography>}
+                    {created && <Typography variant="body2">Published: {" "} <Moment format="MMM DD, YYYY">{created}</Moment></Typography>}
+                </CardContent>
+                {link && 
+                    <CardActions>
+                        <Button variant="contained" className={classes.viewMoreButton} disableElevation>
+                            <Link className={classes.link} to={link}>view occurrence</Link>
+                        </Button>
+                    </CardActions>
+                }         
+                {place && <div className={classes.placeHolder}><Typography variant="body1"><b>{place}</b></Typography></div>}
+            </Card>
+        </>
     )
 }
 
