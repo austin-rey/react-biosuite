@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%'
     },
     card: {
-        width: 280,
+        width: 287,
         boxShadow: 'none',
         textAlign: 'center',
         border: '1px solid #efefef',
@@ -33,8 +33,10 @@ const useStyles = makeStyles((theme) => ({
         textDecoration: 'none'
     },
     cardContent: {
-        padding: '0px',
-        paddingBottom: '0px !important'
+        padding: '0px !important'
+    },
+    title: {
+        padding: '10px',
     },
     placeHolder: {
         position: 'absolute',
@@ -69,7 +71,7 @@ const ImageCard = ({image,title,created,link,place}) => {
                     />
                 </a>
                 <CardContent className={classes.cardContent}>
-                    {title && <Typography variant="h4">{title}</Typography>}
+                    {title && <Typography className={classes.title} variant="h4">{title}</Typography>}
                     {created && <Typography variant="body2">Published: {" "} <Moment format="MMM DD, YYYY">{created}</Moment></Typography>}
                 </CardContent>
                 {link && 

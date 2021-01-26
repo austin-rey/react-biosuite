@@ -22,16 +22,24 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: '2px'
-    }
+    },
+    table: {
+        borderRadius: '5px',
+    },
+    tableHead: {
+        borderTopRightRadius: '5px',
+        borderTopLeftRadius: '5px',
+        backgroundColor: theme.palette.brown.light,
+    },
 }));
 
 const ImageTable = ({data}) => {
     const classes = useStyles();
     return (
         <Paper elevation={0} className={classes.root}>
-            <TableContainer>
+            <TableContainer className={classes.table}>
                 <Table aria-label="simple table" size="small">
-                <TableHead>
+                <TableHead className={classes.tableHead}>
                     <TableRow>
                         <TableCell variant="head" align="center"><Typography variant="h6">ID</Typography></TableCell>
                         <TableCell variant="head" align="center"><Typography variant="h6">Creator</Typography></TableCell>

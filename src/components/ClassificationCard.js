@@ -15,11 +15,11 @@ const ClassificationCard = ({title,subtext,list}) => {
         <>
             <Typography variant="h4">{title}</Typography>
             <Typography variant="body2"><i>{subtext}</i></Typography>
-            <ul>
+            {(list.length>0)?<ul>
                 {list?.map((parent,i) => (
                     <li key={i}><Typography variant="body1">{parent.canonicalName}</Typography></li>
                 ))}
-            </ul>
+            </ul>:<ul><li><Typography variant="body1">No records found</Typography></li></ul>}
         </>
     )
 }

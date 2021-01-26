@@ -10,19 +10,27 @@ const useStyles = makeStyles((theme) => ({
     },
     w50: {
         width: '50%'
-    }
+    },
+    table: {
+        borderRadius: '5px',
+    },
+    tableHead: {
+        borderTopRightRadius: '5px',
+        borderTopLeftRadius: '5px',
+        backgroundColor: theme.palette.brown.light,
+    },
 }));
 
 const OccurrenceTable = ({data}) => {
     const classes = useStyles();
     return (
         <Paper elevation={0} className={classes.root}>
-            <TableContainer>
-                <Table aria-label="simple table" size="small">
-                <TableHead>
+            <TableContainer className={classes.table}>
+                <Table aria-label="Occurrence table" size="small">
+                <TableHead className={classes.tableHead}>
                     <TableRow>
-                        <TableCell variant="head" align="center"><Typography variant="h6">Record</Typography></TableCell>
-                        <TableCell variant="head" align="center"><Typography variant="h6">Value</Typography></TableCell>
+                        <TableCell variant="head" align="center"><Typography variant="h4">Record</Typography></TableCell>
+                        <TableCell variant="head" align="center"><Typography variant="h4">Value</Typography></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>

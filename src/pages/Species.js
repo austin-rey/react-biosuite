@@ -10,7 +10,7 @@ import {useFetchSpecies} from '../hooks/useFetchSpecies'
 
 import {makeStyles} from '@material-ui/core/styles';
 
-import { Grid,Paper,Divider,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Typography } from '@material-ui/core';
+import { Grid,Paper,Divider,Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Typography,Chip } from '@material-ui/core';
 
 import Dashboard from '../components/Dashboard'
 import Loading from '../components/Loading'
@@ -51,6 +51,32 @@ const useStyles = makeStyles((theme) => ({
     link: {
         color: "#fff",
         textDecoration: 'none'
+    },
+    table: {
+        borderRadius: '5px',
+    },
+    tableHead: {
+        borderTopRightRadius: '5px',
+        borderTopLeftRadius: '5px',
+        backgroundColor: theme.palette.brown.main,
+
+    },
+    headerBG: {
+        backgroundColor: theme.palette.brown.light,
+    },
+    mw1600: {
+        maxWidth: '1600px'
+    },
+    chip: {
+        borderRadius: '5px',
+        color: '#fff',
+        margin: '5px'
+    },
+    white: {
+        color: "#fff"
+    },
+    borderRadius: {
+        borderRadius: '5px'
     }
 }));
 
@@ -58,22 +84,22 @@ const OccurrenceTable = ({occurrences}) => {
     const classes = useStyles();
     return (
         <Paper elevation={0}>
-            <TableContainer>
-                <Table className={classes.table} aria-label="simple table" size="small">
-                <TableHead>
+            <TableContainer className={classes.table}>
+                <Table aria-label="Occurrence table" size="">
+                <TableHead className={classes.tableHead}>
                     <TableRow>
-                        <TableCell align="center"><Typography variant="h6">Scientific Name</Typography></TableCell>
-                        <TableCell align="center"><Typography variant="h6">Rank</Typography></TableCell>
-                        <TableCell align="center"><Typography variant="h6">Record Date</Typography></TableCell>
-                        <TableCell align="center"><Typography variant="h6">Country</Typography></TableCell>
-                        <TableCell align="center"><Typography variant="h6">Basis of Record</Typography></TableCell>
-                        <TableCell align="center"><Typography variant="h6">Source</Typography></TableCell>
+                        <TableCell align="left"><Typography variant="h4">Scientific Name</Typography></TableCell>
+                        <TableCell align="center"><Typography variant="h4">Rank</Typography></TableCell>
+                        <TableCell align="center"><Typography variant="h4">Record Date</Typography></TableCell>
+                        <TableCell align="center"><Typography variant="h4">Country</Typography></TableCell>
+                        <TableCell align="center"><Typography variant="h4">Basis of Record</Typography></TableCell>
+                        <TableCell align="center"><Typography variant="h4">Source</Typography></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {occurrences.results.map((result) => (
                     <TableRow key={result.key}>
-                        <TableCell align="center"><Typography variant="body2"><b>{(result.acceptedScientificName)?result.acceptedScientificName:"No record"}</b></Typography></TableCell>
+                        <TableCell align="left"><Typography variant="body2"><b>{(result.acceptedScientificName)?result.acceptedScientificName:"No record"}</b></Typography></TableCell>
                         <TableCell align="center"><Typography variant="body2">{(result.taxonRank)?result.taxonRank:"No record"}</Typography></TableCell>
                         <TableCell align="center"><Typography variant="body2">{(result.eventDate)?<Moment format="MMM DD, YYYY">{result.eventDate}</Moment>:"No record"}</Typography></TableCell>
                         <TableCell align="center"><Typography variant="body2">{(result.country)?result.country:"No record"}</Typography></TableCell>
@@ -89,7 +115,7 @@ const OccurrenceTable = ({occurrences}) => {
 }
 
 // Right side of the dashboard
-const MainContent = ({data,imagePageChange,occurrencePageChange,imagePaginationOptions,occurrencePaginationOptions}) => {
+const MainContent = ({data,imagePageChange,occurrencePageChange,imagePaginationOptions,occurrencePaginationOptions,isLoading}) => {
     const classes = useStyles();
     const {metadata,occurrenceImages,occurrences,speciesVernacularNames,speciesSynonyms} = data;
 
@@ -97,7 +123,9 @@ const MainContent = ({data,imagePageChange,occurrencePageChange,imagePaginationO
         return (
             <Grid container direction="row" spacing={2} justify="space-between" alignItems="center">
                 <Grid item>
-                    <Typography variant="h6">English Common Name: <b>{metadata.vernacularName}</b></Typography>
+                    {(metadata.vernacularName)?
+                    <Typography variant="h6">English Common Name: <i>"{metadata.vernacularName}"</i></Typography>:
+                    <Typography variant="h6"><i>English Common Name Not Found</i></Typography>}
                 </Grid>
                 <Grid item>
                     <Typography variant="h6">{occurrences.count} occurrences found</Typography>
@@ -108,83 +136,86 @@ const MainContent = ({data,imagePageChange,occurrencePageChange,imagePaginationO
 
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
-            <PageHeader heading={metadata.scientificName} HeadingBody={HeadingBody}/>
-            <Grid item className={classes.results}>
-                <Grid container direction="column" wrap="nowrap">
-                    <Grid item className={classes.section}>
-                        <SectionHeader heading="Published Images" subtext="Note: Click image for larger view."/>
-                        <Paper elevation={0}>
-                            <Grid container direction="column">
-                                <Grid item>
-                                    <Grid container direction="row" spacing={2} className={classes.cardContainer}>
-                                        {occurrenceImages.results?.map((image,i) => (
-                                            <Grid item key={i}>
-                                                <ImageCard image={image.media[0].identifier} title={image.acceptedScientificName} created={image.media[0].created} link={'/'}/>
+            <Grid item className={classes.headerBG}>
+                <div className={classes.mw1600}>
+                    <PageHeader heading={metadata.scientificName} HeadingBody={HeadingBody}/>
+                </div>
+            </Grid>
+            {!isLoading && 
+            <div className={classes.mw1600}>
+                <Grid item className={classes.results}>
+                    <Grid container direction="column" wrap="nowrap">
+                        <Grid item className={classes.section}>
+                            <SectionHeader heading="Published Images" subtext="Note: Click image for larger view."/>
+                            <Paper elevation={0}>
+                                <Grid container direction="column">
+                                    <Grid item>
+                                        <Grid container direction="row" spacing={2} className={classes.cardContainer}>
+                                            {occurrenceImages.results?.map((image,i) => (
+                                                <Grid item key={i}>
+                                                    <ImageCard image={image.media[0].identifier} title={image.acceptedScientificName} created={image.media[0].created} link={`/occurrence/${image.key}`}/>
+                                                </Grid>
+                                            ))}   
+                                        </Grid>
+                                        <Divider/>
+                                    </Grid>
+                                    <Grid item>
+                                        <Grid container direction="row" justify="space-between" alignItems="center" className={classes.pagination}>
+                                            <Grid item> 
+                                                <PaginationControlled currentPage={imagePaginationOptions.page+1} totalPages={Math.ceil(occurrenceImages.count/imagePaginationOptions.limit)} onChange={imagePageChange} />
                                             </Grid>
-                                        ))}   
-                                    </Grid>
-                                    <Divider/>
-                                </Grid>
-                                <Grid item>
-                                    <Grid container direction="row" justify="space-between" alignItems="center" className={classes.pagination}>
-                                        <Grid item> 
-                                            <PaginationControlled currentPage={imagePaginationOptions.page+1} totalPages={Math.ceil(occurrenceImages.count/imagePaginationOptions.limit)} onChange={imagePageChange} />
-                                        </Grid>
-                                        <Grid item>
-                                            <Typography variant="body1">{occurrenceImages.count} results</Typography>
+                                            <Grid item>
+                                                <Typography variant="body1">{occurrenceImages.count} results</Typography>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                            </Grid>
-                        </Paper>
-                    </Grid>
-                    <Grid item className={classes.section}>
-                        <SectionHeader heading="Geolocation Records" subtext="Occurrences of this species with recorded location data."/>
-                        <Paper elevation={0} className={classes.mapContainer}>
-                            {/* <MapboxGLMap taxonKey={metadata.key} width={1024} height={400}/> */}
-                        </Paper>
-                    </Grid>
-                    <Grid item className={classes.section}>
-                        <SectionHeader heading="Recorded Occurrences" subtext="Click the name to view additional information per occurrence."/>
-                        <Paper elevation={0}>
-                            <Grid container direction="column">
-                                <Grid item>
-                                    <OccurrenceTable occurrences={occurrences}/>
-                                </Grid>
-                                <Grid item>
-                                    <Grid container direction="row" justify="space-between" alignItems="center" className={classes.pagination}>
-                                        <Grid item> 
-                                            <PaginationControlled currentPage={occurrencePaginationOptions.page+1} totalPages={Math.ceil(occurrences.count/occurrencePaginationOptions.limit)} onChange={occurrencePageChange} />
+                            </Paper>
+                        </Grid>
+                        <Grid item className={classes.section}>
+                            <SectionHeader heading="Geolocation Records" subtext="Occurrences of this species with recorded location data."/>
+                            <Paper elevation={0} className={classes.mapContainer}>
+                                <MapboxGLMap taxonKey={metadata.key} width={1024} height={400}/>
+                            </Paper>
+                        </Grid>
+                        <Grid item className={classes.section}>
+                            <SectionHeader heading="Recorded Occurrences" subtext="Click the name to view additional information per occurrence."/>
+                            <Paper elevation={0} className={classes.borderRadius}>
+                                <Grid container direction="column">
+                                    <Grid item>
+                                        <OccurrenceTable occurrences={occurrences}/>
+                                    </Grid>
+                                    <Grid item>
+                                        <Grid container direction="row" justify="space-between" alignItems="center" className={classes.pagination}>
+                                            <Grid item> 
+                                                <PaginationControlled currentPage={occurrencePaginationOptions.page+1} totalPages={Math.ceil(occurrences.count/occurrencePaginationOptions.limit)} onChange={occurrencePageChange} />
+                                            </Grid>
+                                            <Grid item><Typography variant="body1">{occurrences.count} results</Typography></Grid>
                                         </Grid>
-                                        <Grid item><Typography variant="body1">{occurrences.count} results</Typography></Grid>
                                     </Grid>
                                 </Grid>
-                            </Grid>
-                        </Paper>
-                    </Grid>
-                    <Grid item className={classes.section}>
-                        <Grid container direction="row" spacing={2} justify="flex-start" wrap="nowrap" alignItems="stretch">
-                            <Grid item sm={6} md={6} lg={6} xl={6}>
-                                <SectionHeader heading="Vernacular Names" subtext="Common Names"/>
-                                <NameCard 
-                                    leftCol={speciesVernacularNames?.results.map((item)=>{return item.vernacularName})} rightCol={speciesVernacularNames?.results.map((item)=>{return item.source})} 
-                                    leftLabel={'Name'} 
-                                    rightLabel={'Source'}
-                                />
-                            </Grid>
-                            <Grid item sm={6} md={6} lg={6} xl={6}>
-                                <SectionHeader heading="Synonyms" subtext="Related names"/>
-                                <NameCard 
-                                    leftCol={speciesSynonyms?.results.map((item)=>{return item.scientificName})} 
-                                    rightCol={speciesSynonyms?.results.map((item)=>{return item.authorship})} 
-                                    leftLabel={'Name'} 
-                                    rightLabel={'Author'}
-                                />
-                            </Grid>
+                            </Paper>
+                        </Grid>
+                        <Grid item className={classes.section}>
+                            <SectionHeader heading="Vernacular Names" subtext="Common Names"/>
+                            <NameCard 
+                                leftCol={speciesVernacularNames?.results.map((item)=>{return item.vernacularName})} rightCol={speciesVernacularNames?.results.map((item)=>{return item.source})} 
+                                leftLabel={'Name'} 
+                                rightLabel={'Source'}
+                            />
+                        </Grid>
+                        <Grid item className={classes.section}>
+                            <SectionHeader heading="Synonyms" subtext="Related names"/>
+                            <NameCard 
+                                leftCol={speciesSynonyms?.results.map((item)=>{return item.scientificName})} 
+                                rightCol={speciesSynonyms?.results.map((item)=>{return item.authorship})} 
+                                leftLabel={'Name'} 
+                                rightLabel={'Author'}
+                            />
                         </Grid>
                     </Grid>
                 </Grid>
-            </Grid>
+            </div>}
         </Grid>
     )
 }
@@ -203,14 +234,16 @@ const Sidebar = ({data}) => {
                 <Typography variant="h3">Classification</Typography>
             </Grid>
             <Grid item className={classes.sidebarContainer}>
-                <SidebarCard title={'Higher Taxon'} subtext={'Click each to explore the children species.'} list={speciesParent}/>
+                <SidebarCard title={'Higher Taxon'} subtext={'Click each to search for children.'} list={speciesParent}/>
             </Grid>
             <Grid item className={classes.sidebarContainer}>
                <Typography variant="h4">{metadata.scientificName}</Typography>
-               <ul>
-                   <li><Typography variant="body1">Rank: {metadata.rank}</Typography></li>
-                   <li><Typography variant="body1">Status: {metadata.taxonomicStatus}</Typography></li>
-               </ul>
+               {metadata.rank && <Grid item>
+                    <Chip className={classes.chip} color="secondary" label={<Typography variant="h6" className={classes.white}>{metadata.rank.toUpperCase()}</Typography>} />
+                </Grid>}
+                {metadata.taxonomicStatus && <Grid item>
+                    <Chip className={classes.chip} color="secondary" label={<Typography variant="h6" className={classes.white}>{metadata.taxonomicStatus.toUpperCase()}</Typography>}/>
+                </Grid>} 
             </Grid>
             <Grid item className={classes.sidebarContainer}>
                 <SidebarCard title={'Children'} subtext={'Click each to view more details.'} list={speciesChildren.results}/>
@@ -266,7 +299,6 @@ const Species = props => {
             occurrencePage: value-1
         })
     }
-
     // Initial fetching of data for the species page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     useEffect(() => {
         try {

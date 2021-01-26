@@ -94,10 +94,10 @@ const useStyles = makeStyles((theme) => ({
         textDecoration: 'none'
     },
     paper :{
-        backgroundColor: theme.palette.brown.light,
+        backgroundColor: theme.palette.green.dark,
+        color: theme.palette.brown.light,
         width: '100%',
-        height: 'calc(33% - 5px)',
-        border: theme.border.light,
+        height: 'calc(33% - 1px)',
         marginBottom: '5px',
         padding: '32px 15px',
         borderRadius: '5px'
@@ -110,6 +110,16 @@ const useStyles = makeStyles((theme) => ({
     },    
     w50 : {
         width: '50%'
+    },
+    headerBG: {
+        backgroundColor: theme.palette.brown.light,
+    },
+    mw1600: {
+        maxWidth: '1600px',
+        margin: 'auto'
+    },
+    lightGreen: {
+        color: theme.palette.green.light,
     }
 }));
 
@@ -180,9 +190,13 @@ const MainContent = ({data}) => {
 
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
-            <PageHeader heading={data.scientificName} HeadingBody={HeadingBody}/> 
+            <Grid item className={classes.headerBG}>
+                <div className={classes.mw1600}>
+                <PageHeader heading={data.scientificName} HeadingBody={HeadingBody}/> 
+                </div>
+            </Grid>
             <Grid item className={classes.results}>
-                <Container maxWidth="xl">
+                <div className={classes.mw1600}>
                     <Grid container direction="column" wrap="nowrap">
                         <Grid item className={classes.section}>
                             <SectionHeader heading="Overview" subtext="General information for this record."/>
@@ -192,19 +206,19 @@ const MainContent = ({data}) => {
                                         <Grid className={classes.paper} item>
                                             <Grid container direction="row" alignItems="center" spacing={2} >
                                                 <Grid item><AssignmentIcon/> </Grid>
-                                                <Grid item><Typography variant="h4">{data.taxonRank}</Typography></Grid>
+                                                <Grid item><Typography variant="h4" className={classes.lightGreen}>{data.taxonRank}</Typography></Grid>
                                             </Grid>
                                         </Grid>
                                         <Grid className={classes.paper} item>
                                             <Grid container direction="row" alignItems="center" spacing={2} >
                                                 <Grid item><LocationOnIcon /></Grid>
-                                                <Grid item><Typography variant="h4">{data.country}</Typography></Grid>
+                                                <Grid item><Typography variant="h4" className={classes.lightGreen}>{data.country}</Typography></Grid>
                                             </Grid>
                                         </Grid>
                                         <Grid className={classes.paper} item>
                                             <Grid container direction="row" alignItems="center" spacing={2} >
                                                 <Grid item><WatchLaterIcon/></Grid>
-                                                <Grid item><Typography variant="h4"><Moment format="MMM DD, YYYY">{data.eventDate}</Moment></Typography></Grid>
+                                                <Grid item><Typography variant="h4" className={classes.lightGreen}><Moment format="MMM DD, YYYY">{data.eventDate}</Moment></Typography></Grid>
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -255,7 +269,7 @@ const MainContent = ({data}) => {
                             <OccurrenceTable data={otherTableData}/>
                         </Grid>
                     </Grid>
-                </Container>
+                </div>
             </Grid>
         </Grid>
     )

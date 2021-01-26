@@ -35,7 +35,6 @@ const Navigation = () => {
 
     return (
         <div className={classes.root}>
-          <Container maxWidth="xl">
             <Router>
                 <AppBar position="static" className={classes.appBar}>
                     <Toolbar>
@@ -49,8 +48,6 @@ const Navigation = () => {
                     </Toolbar>
                 </AppBar>
             </Router>
-          </Container>
-      
       </div>
     )
 }

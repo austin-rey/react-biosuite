@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   drawerPaper: {
+    borderRight: theme.border.brown,
     backgroundColor: theme.palette.brown.main,
     padding: theme.spacing(2),
     position: 'relative',
@@ -26,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     }),
   },
   content: {
-    overflow: 'hideen',
+    overflow: 'hidden',
     flexGrow: 1,
     backgroundColor: theme.palette.grey.light
   },
@@ -53,7 +54,6 @@ const Dashboard = (props) => {
         {props.sidebar}
       </Drawer>
       <main className={classes.content}>
-      
            {props.mainContent}
       </main>
     </div>

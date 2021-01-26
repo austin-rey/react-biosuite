@@ -20,7 +20,7 @@ const theme = createMuiTheme({
       main: "#5E6647"
     },
     secondary: {
-      main: "#ffa500"
+      main: "#6F6255"
     },
     brown: {
       light: "#F0E9E1",
@@ -34,6 +34,9 @@ const theme = createMuiTheme({
       light: "#B5B7A6",
       main: "#898E77",
       dark: "#5E6647"
+    },
+    yellow: {
+      main: "#ffa500"
     }
   },
   typography: {
