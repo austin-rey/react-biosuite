@@ -6,7 +6,6 @@ import PropTypes from 'prop-types'
 
 import { Grid,Paper,TextField,FormGroup,FormControlLabel,Checkbox,Divider,Typography } from '@material-ui/core';
 
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import {makeStyles} from '@material-ui/core/styles';
 
 import Dashboard from '../components/Dashboard'
@@ -14,9 +13,9 @@ import Loading from '../components/Loading'
 import ResultCard from '../components/ResultCard'
 import PaginationControlled from '../components/Pagination'
 import PageHeader from '../components/PageHeader'
+import FilterCard from '../components/FilterCard'
 
 const useStyles = makeStyles((theme) => ({
-
     results: {
         padding: '0px 40px',
         flexGrow: 1,
@@ -29,32 +28,10 @@ const useStyles = makeStyles((theme) => ({
         border: theme.border.light
 
     },
-    filterContainer: {
-        backgroundColor: '#fff',
-        border: '1px solid #F0E9E1',
-        borderRadius: '5px',
-        margin: '10px 0px',
-        padding: '10px',
-        border: theme.border.brown,
-
-    },
     textfield: {
         width: '100%',
         borderRadius: '5px',
         margin: '0px'
-    },
-    formLabel: {
-        display: 'flex',
-        fontFamily: 'Khula, Raleway, sans-serif',
-        fontSize: '1rem',
-    },
-    resultsCount: {
-        margin: '0px 0px 0px 30px',
-        display: 'flex',
-        justifySelf: 'center',
-        padding: '5px',
-        borderLeft: '2px solid #D2D2C6',
-        color: "#4F5837"
     },
     input: {
         backgroundColor: "#fff"
@@ -76,32 +53,8 @@ const Sidebar = ({facets,onChange,onSearchChange,selectedFilters,loading}) => {
                 <Typography variant="h3">Filters</Typography>
                 <TextField className={classes.textfield} onChange={onSearchChange} id="outlined-basic" placeholder="Name, description, class" label="Search" variant="outlined" />
             </Grid>
-            {facets && facets.map((facet,facetIndex) => (
-                <Grid key={facetIndex} item className={classes.filterContainer}>
-                    <Grid container direction="row" justify="space-between" alignItems="center">
-                        <Grid item><Typography variant="h4">{facet.field.split('_').join(' ')}</Typography></Grid>
-                        <Grid item><ArrowDropDownIcon/></Grid>
-                    </Grid>
-                    <Divider/>
-                    <FormGroup>
-                    {facet.counts.map((fieldOptions, fieldIndex) => (
-                        <>
-                            <FormControlLabel
-                                className={classes.formLabel}
-                                labelPlacement="end"
-                                disabled={loading}
-                                key={fieldIndex}
-                                onChange={onChange}
-                                control={<Checkbox checked={Object.values(selectedFilters[facetIndex])[1]?.includes(fieldOptions.name)}/>}
-                                label={fieldOptions.name.split('_').join(' ').toLowerCase()}
-                                value={fieldOptions.name}
-                                name={facet.field}
-                            />
-                            <Typography variant="body2" className={classes.resultsCount} >{fieldOptions.count} Results</Typography>
-                        </>
-                    ))}
-                    </FormGroup>
-                </Grid>
+            {facets && facets.map((facet,facetIndex,) => (
+                <FilterCard facet={facet} facetIndex={facetIndex} onChange={onChange} selectedFilters={selectedFilters} loading={loading}/>
             ))}
         </Grid>
     )
