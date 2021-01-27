@@ -9,7 +9,21 @@ export const fetchSearch = async ({paginationOptions,filterStrings="",searchQuer
 
   const response = await gbif.get(`/species/search?advanced=false&dataset_key=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&facet=rank&facet=highertaxon_key&facet=status&facet=issue&facetMultiselect=true&issue.facetLimit=100&locale=en&name_type.facetLimit=100&rank.facetLimit=100&status.facetLimit=100&limit=${paginationOptions.limit}&offset=${offset}${filterStrings}&q=${searchQuery}`)  
 
-  return response.data;
+  const higertaxonFacets = Object.values(response.data.facets[3].counts)
+
+  let names = {}
+
+  higertaxonFacets.forEach(async (facet) => {
+    const response = await gbif.get(`/species/${facet.name}/name`) 
+    names[facet.name] = response.data.scientificName
+  })
+
+  let data = {
+    "results": response.data,
+    "highertaxonData": names,
+  }
+
+  return data;
 }
 
 fetchSearch.propTypes = {

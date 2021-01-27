@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // Left side of the dashboard
-const Sidebar = ({facets,onChange,onSearchChange,selectedFilters,loading}) => {
+const Sidebar = ({facets,onChange,onSearchChange,selectedFilters,loading,highertaxonNames}) => {
     const classes = useStyles();
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
@@ -54,7 +54,7 @@ const Sidebar = ({facets,onChange,onSearchChange,selectedFilters,loading}) => {
                 <TextField className={classes.textfield} onChange={onSearchChange} id="outlined-basic" placeholder="Name, description, class" label="Search" variant="outlined" />
             </Grid>
             {facets && facets.map((facet,facetIndex,) => (
-                <FilterCard facet={facet} facetIndex={facetIndex} onChange={onChange} selectedFilters={selectedFilters} loading={loading}/>
+                <FilterCard facet={facet} facetIndex={facetIndex} onChange={onChange} selectedFilters={selectedFilters} loading={loading} highertaxonNames={highertaxonNames}/>
             ))}
         </Grid>
     )
@@ -207,7 +207,6 @@ const Search = () => {
             searchQuery});
     }
 
-    console.log(data)
     // Initial fetching of data for the search page ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     useEffect(() => {
         try {
@@ -225,20 +224,21 @@ const Search = () => {
                 sidebar={
                     <Sidebar 
                         loading={isLoading}
-                        facets={data.facets} 
+                        facets={data.results.facets} 
                         onChange={filterSelect}
                         onSearchChange={searchChange}
                         selectedFilters={filters}
+                        highertaxonNames={data.highertaxonData}
                     />
                 } 
                 mainContent={
                     <MainContent 
                         loading={isLoading}
-                        count={data.count} 
-                        results={data.results} 
+                        count={data.results.count} 
+                        results={data.results.results} 
                         pageChange={pageChange} 
                         currentPage={paginationOptions.page+1}
-                        totalPages={Math.ceil(data.count/paginationOptions.limit)}
+                        totalPages={Math.ceil(data.results.count/paginationOptions.limit)}
                     /> 
                 }
             />

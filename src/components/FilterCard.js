@@ -14,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
         margin: '10px 0px',
         border: theme.border.brown
     },
+    accordionSummary: {
+        borderBottom: theme.border.light
+    },
     accordion: {
         boxShadow: 'none'
     },
@@ -31,16 +34,18 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const FilterCard = ({facet,facetIndex,onChange,onSearchChange,selectedFilters,loading}) => {
+const FilterCard = ({facet,facetIndex,onChange,selectedFilters,loading,highertaxonNames}) => {
     const classes = useStyles();
-    console.log(selectedFilters)
+    console.log(highertaxonNames)
+    console.log(facet)
     return (
         <Grid key={facetIndex} item className={classes.filterContainer}>
-            <Accordion className={classes.accordion}>
+            <Accordion className={classes.accordion} defaultExpanded={facetIndex==2}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="filter-accordion"
+                    className={classes.accordionSummary}
                 >
                     <Typography variant="h4">{facet.field.split('_').join(' ')}</Typography>
                 </AccordionSummary>
@@ -48,6 +53,7 @@ const FilterCard = ({facet,facetIndex,onChange,onSearchChange,selectedFilters,lo
                     <FormGroup>
                         {facet.counts.map((fieldOptions, fieldIndex) => (
                             <>
+                            {console.log(highertaxonNames[fieldOptions.name])}
                                 <FormControlLabel
                                     className={classes.formLabel}
                                     labelPlacement="end"
@@ -55,7 +61,10 @@ const FilterCard = ({facet,facetIndex,onChange,onSearchChange,selectedFilters,lo
                                     key={fieldIndex}
                                     onChange={onChange}
                                     control={<Checkbox checked={Object.values(selectedFilters[facetIndex])[1]?.includes(fieldOptions.name)}/>}
-                                    label={<Typography variant="h6">{fieldOptions.name.split('_').join(' ').toLowerCase()}</Typography>}
+                                    label={(facet.field !== "HIGHERTAXON_KEY")
+                                    ?<Typography variant="h6">{fieldOptions.name.split('_').join(' ').toLowerCase()}</Typography>
+                                    :<Typography variant="h6">{highertaxonNames[fieldOptions.name].toLowerCase()}</Typography>
+                                    }
                                     value={fieldOptions.name}
                                     name={facet.field}
                                 />
